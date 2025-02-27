@@ -1,0 +1,19 @@
+networks:
+  backend:
+
+services:
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    volumes:
+      - ~/Documents/inception/srcs/requirements/nginx/log:/var/log/nginx
+      - ~/Documents/inception/srcs/requirements/wordpress/website:/var/www/html
+    networks:
+      - backend
+    ports:
+      - '80:80'
+    expose:
+      - '80'
+    # depends_on:
+    #   - wordpress
+    restart: always
