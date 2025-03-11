@@ -1,17 +1,21 @@
+
 FROM debian:bullseye
 
-RUN apt-get update && apt-get install php php7.4-fpm php-mysqli php-redis wget -y  && service php7.4-fpm start 
+RUN apt-get update \
+    && apt-get install wget php-mysql php7.4-fpm netcat-traditional -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /workspace
+WORKDIR /var/www/wordpress
 
-WORKDIR /workspace
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
 
-COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/.
+COPY ./tools /execute
+RUN chmod -R +x /execute
 
-COPY ./tools/init.sh .
+EXPOSE 9000/tcp
 
-RUN chmod +x init.sh
-
-EXPOSE 9000
-
-CMD ["./init.sh"]
+ENTRYPOINT ["sh", "/execute/setup.sh" ]
+CMD ["/usr/sbin/php-fpm7.4", "-F"]

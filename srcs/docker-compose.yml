@@ -1,58 +1,55 @@
 version: '3.8'
 
-networks:
-    backend:
-        driver: bridge
-        name: inception
-
 services:
   mariadb:
-    build: ./requirements/mariadb
+    build: ./requirements/mariadb/.
+    image: mariadb:sperron
     container_name: mariadb
     restart: unless-stopped
     env_file:
-     - .env
+      - .env
     volumes:
-      - mariadb_data:/var/lib/mysql
-      - ./requirements/mariadb/conf/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "3306:3306"
-    init: true
+    - mariadb_data:/var/lib/mysql
+    - ./requirements/mariadb/init:/docker-entrypoint-initdb.d
     networks:
-      - backend
+      - inception
+
   wordpress:
-    build: ./requirements/wordpress  # Ton Dockerfile WordPress avec PHP-FPM
+    build: ./requirements/wordpress/.
+    image: wordpress:sperron
     container_name: wordpress
     restart: unless-stopped
     env_file:
-     - .env
+      - .env
     volumes:
-      - wordpress_data:/var/www/html
+      - wordpress_data:/var/www/wordpress
+    networks:
+      - inception
     depends_on:
       - mariadb
-      - nginx
-    init: true
-    depends_on:
-     - mariadb
-    networks:
-      - backend
+
   nginx:
-    build: ./requirements/nginx
+    build: ./requirements/nginx/.
+    image: nginx:sperron
     container_name: nginx
     restart: unless-stopped
     ports:
-     - "443:443"
+      - "443:443"
     volumes:
-     - ./srcs/nginx/conf.d:/etc/nginx/conf.d
-     - ./srcs/wordpress:/var/www/html
-    depends_on:
-     - wordpress
-    init: true
+      - wordpress_data:/var/www/wordpress
     networks:
-      - backend
+      - inception
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
 
 volumes:
   mariadb_data:
-    driver: local
+    name: mariadb
   wordpress_data:
-    driver: local
+    name: wordpress
+
+networks:
+  inception:
+    name: inception

@@ -3,10 +3,14 @@ FROM debian:bullseye
 # Install MariaDB
 RUN apt-get update && apt-get install -y mariadb-server && apt-get clean && mkdir -p /var/run/mysqld && chown -R mysql:mysql /var/run/mysqld
 
-COPY ./conf/my.cnf /etc/mysql/my.cnf
+RUN mkdir workspace
 
-COPY ./conf/init.sql /tmp/init.sql
+WORKDIR /workspace
 
-EXPOSE 3306
+COPY ./tools/setup.sh .
 
-CMD ["mysqld"]
+COPY ./conf/my.cnf /etc/mysql/mariadb.conf.d/my.cnf
+
+RUN chmod +x setup.sh
+
+CMD ["./setup.sh"]
