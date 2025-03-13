@@ -2,7 +2,7 @@
 FROM debian:bullseye
 
 RUN apt-get update \
-    && apt-get install wget php-mysql php7.4-fpm netcat-traditional -y \
+    && apt-get install wget curl php-mysql php7.4-fpm netcat-traditional -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

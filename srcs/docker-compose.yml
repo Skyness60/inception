@@ -3,20 +3,17 @@ version: '3.8'
 services:
   mariadb:
     build: ./requirements/mariadb/.
-    image: mariadb:sperron
     container_name: mariadb
     restart: unless-stopped
     env_file:
       - .env
     volumes:
-    - mariadb_data:/var/lib/mysql
-    - ./requirements/mariadb/init:/docker-entrypoint-initdb.d
+      - mariadb_data:/var/lib/mysql
+      - ./requirements/mariadb/init:/docker-entrypoint-initdb.d
     networks:
       - inception
-
   wordpress:
     build: ./requirements/wordpress/.
-    image: wordpress:sperron
     container_name: wordpress
     restart: unless-stopped
     env_file:
@@ -27,10 +24,8 @@ services:
       - inception
     depends_on:
       - mariadb
-
   nginx:
     build: ./requirements/nginx/.
-    image: nginx:sperron
     container_name: nginx
     restart: unless-stopped
     ports:
@@ -49,6 +44,7 @@ volumes:
     name: mariadb
   wordpress_data:
     name: wordpress
+
 
 networks:
   inception:

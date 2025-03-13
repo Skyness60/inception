@@ -1,29 +1,24 @@
 FROM debian:bullseye
 
-# Install nginx
-RUN apt-get update && apt-get install -y nginx && apt-get clean
+# Installer nginx, openssl et nettoyer
+RUN apt-get update && apt-get install -y \
+    nginx openssl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy the configuration file
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
-
-# Installer openssl
-RUN apt-get update && apt-get install -y openssl
-
-# Créer un dossier pour les certificats
-RUN mkdir -p /etc/nginx/ssl
-
-# Générer un certificat SSL auto-signé
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+# Générer le certificat SSL auto-signé
+RUN mkdir -p /etc/nginx/ssl && \
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/nginx.key \
     -out /etc/nginx/ssl/nginx.crt \
     -subj "/C=FR/ST=Paris/L=Paris/O=42/CN=sperron.42.fr" && \
-    ls -l /etc/nginx/ssl/
+    chmod 600 /etc/nginx/ssl/nginx.key && \
+    chmod 644 /etc/nginx/ssl/nginx.crt
 
+# Copier la config nginx (mieux vaut un volume, mais au cas où)
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
-RUN chmod 600 /etc/nginx/ssl/nginx.key && chmod 644 /etc/nginx/ssl/nginx.crt
-
-# Expose the port
+# Exposer le port HTTPS
 EXPOSE 443
 
-# Start the service
+# Lancer nginx en mode foreground
 CMD ["nginx", "-g", "daemon off;"]
