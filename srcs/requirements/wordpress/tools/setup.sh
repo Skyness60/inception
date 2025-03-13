@@ -25,6 +25,9 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
     wp core install --url=$DOMAIN_NAME --title=Inception --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL --allow-root
     # Créer un utilisateur WordPress
     wp user create $WP_USER $WP_EMAIL --role=author --user_pass=$WP_PASSWORD --allow-root
+	wp config set WP_REDIS_PORT 6379 --add --type=constant --allow-root --path=/var/www/wordpress/
+	wp config set WP_REDIS_HOST redis --add --type=constant --allow-root --path=/var/www/wordpress/
+	wp config set WP_CACHE true --add --type=constant --allow-root --path=/var/www/wordpress/
 else
     echo "WordPress is already installed."
 fi

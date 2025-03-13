@@ -1,9 +1,18 @@
 version: '3.8'
 
+volumes:
+  mariadb_data:
+    name: mariadb
+  wordpress_data:
+    name: wordpress
+  static_data:
+    name: static
+
 services:
   mariadb:
     build: ./requirements/mariadb/.
     container_name: mariadb
+    init: true
     restart: unless-stopped
     env_file:
       - .env
@@ -14,6 +23,7 @@ services:
   wordpress:
     build: ./requirements/wordpress/.
     container_name: wordpress
+    init: true
     restart: unless-stopped
     env_file:
       - .env
@@ -26,24 +36,93 @@ services:
   nginx:
     build: ./requirements/nginx/.
     container_name: nginx
+    init: true
     restart: unless-stopped
     ports:
       - "443:443"
+      - "30:30"
     volumes:
       - wordpress_data:/var/www/wordpress
+      - static_data:/var/www/website
     networks:
       - inception
     depends_on:
       - wordpress
+      - static
     env_file:
       - .env
-
-volumes:
-  mariadb_data:
-    name: mariadb
-  wordpress_data:
-    name: wordpress
-
+  redis:
+    build: ./requirements/bonus/redis/.
+    init: true
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - inception
+    env_file:
+      - .env
+    depends_on:
+      - wordpress
+  ftp:
+    container_name: ftp
+    init: true
+    build:
+      context: ./requirements/bonus/ftp/.
+      dockerfile: Dockerfile
+      args:
+        - FTP_USER
+        - FTP_PASSWORD
+    networks:
+      - inception
+    volumes:
+      - wordpress_data:/home/$FTP_USER/ftp
+    ports:
+      - "220:220"
+      - "221:221"
+    restart: unless-stopped
+    depends_on:
+      - nginx
+  static:
+    container_name: static
+    init: true
+    build:
+      context: ./requirements/bonus/static-website/.
+      dockerfile: Dockerfile
+    networks:
+      - inception
+    volumes:
+      - static_data:/var/www/website
+    restart: unless-stopped
+  adminer:
+    container_name: adminer
+    init: true
+    build:
+      context: ./requirements/bonus/adminer
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    networks:
+      - inception
+    volumes:
+      - wordpress_data:/var/www/wordpress
+    restart: unless-stopped
+    depends_on:
+      - wordpress
+  cadvisor:
+    container_name: cadvisor
+    init: true
+    build:
+      context: ./requirements/bonus/cadvisor
+      dockerfile: Dockerfile
+    networks:
+      - inception
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
 
 networks:
   inception:
