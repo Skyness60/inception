@@ -9,7 +9,6 @@ services:
       - .env
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./requirements/mariadb/init:/docker-entrypoint-initdb.d
     networks:
       - inception
   wordpress:
@@ -49,3 +48,4 @@ volumes:
 networks:
   inception:
     name: inception
+    driver: bridge
