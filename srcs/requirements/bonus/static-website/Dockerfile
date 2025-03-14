@@ -2,8 +2,8 @@
 FROM 		debian:bullseye
 
 RUN mkdir -p /var/www/website
+RUN apt -y update && apt -y upgrade && apt -y install nodejs npm
 COPY ./conf/* /var/www/website/
-COPY ./tools /execute
-RUN chmod -R +x /execute
 
-ENTRYPOINT ["sh", "/execute/setup.sh" ]
+
+CMD ["node", "/var/www/website/server.js"]

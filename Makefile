@@ -4,8 +4,16 @@ NAME = inception
 # Nom du fichier docker-compose
 COMPOSE_FILE = ./srcs/docker-compose.yml
 
+
+# Codes de couleur ANSI
+BOLD=$(shell echo -e "\033[1m")
+RESET=$(shell echo -e "\033[0m")
+GREEN=$(shell echo -e "\033[32m")
+YELLOW=$(shell echo -e "\033[33m")
+RED=$(shell echo -e "\033[31m")
+
 # Réseau Docker
-NETWORK_NAME = inception_network
+NETWORK_NAME = inception
 
 # Dossier des volumes
 VOLUMES_PATH = /home/$(USER)/data
@@ -56,4 +64,27 @@ exec:
 re: prune all
 
 
-.PHONY: all up down restart clean prune logs ps exec re 
+evaluation:
+	$(RM) $(UP_FLAG)
+	@if [ -n "$$(docker ps -qa)" ]; then \
+		echo "$(BOLD)$(YELLOW)Stopping containers...$(RESET)"; \
+		docker stop $$(docker ps -qa) > /dev/null || true; \
+	fi
+	@if [ -n "$$(docker ps -qa)" ]; then \
+		echo "$(BOLD)$(YELLOW)Removing containers...$(RESET)"; \
+		docker rm $$(docker ps -qa) > /dev/null || true; \
+	fi
+	@if [ -n "$$(docker images -qa)" ]; then \
+		echo "$(BOLD)$(YELLOW)Removing images...$(RESET)"; \
+		docker rmi -f $$(docker images -qa) > /dev/null || true; \
+	fi
+	@if [ -n "$$(docker volume ls -q)" ]; then \
+		echo "$(BOLD)$(YELLOW)Removing volumes...$(RESET)"; \
+		docker volume rm $$(docker volume ls -q) > /dev/null || true; \
+	fi
+	@if [ -n "$$(docker network ls -q)" ]; then \
+		echo "$(BOLD)$(YELLOW)Removing networks...$(RESET)"; \
+		docker network rm $$(docker network ls -q) > /dev/null || true; \
+	fi
+
+.PHONY: all up down restart clean prune logs ps exec re evaluation
