@@ -2,16 +2,35 @@ version: '3.8'
 
 volumes:
   mariadb_data:
+    driver: local
     name: mariadb
+    driver_opts:
+      type: none
+      device: /home/sperron/data/mariadb-data
+      o: bind
+
   wordpress_data:
+    driver: local
     name: wordpress
+    driver_opts:
+      type: none
+      device: /home/sperron/data/wordpress-data
+      o: bind
+
   static_data:
+    driver: local
     name: static
+    driver_opts:
+      type: none
+      device: /home/sperron/data/static-data
+      o: bind
+
 
 services:
   mariadb:
     build: ./requirements/mariadb/.
     container_name: mariadb
+    image: mariadb
     init: true
     restart: unless-stopped
     env_file:
@@ -22,6 +41,7 @@ services:
       - inception
   wordpress:
     build: ./requirements/wordpress/.
+    image: wordpress
     container_name: wordpress
     init: true
     restart: unless-stopped
@@ -35,6 +55,7 @@ services:
       - mariadb
   nginx:
     build: ./requirements/nginx/.
+    image: nginx
     container_name: nginx
     init: true
     restart: unless-stopped
@@ -54,6 +75,7 @@ services:
   redis:
     build: ./requirements/bonus/redis/.
     init: true
+    image: redis
     container_name: redis
     restart: unless-stopped
     networks:
@@ -64,6 +86,7 @@ services:
       - wordpress
   ftp:
     container_name: ftp
+    image: ftp
     init: true
     build:
       context: ./requirements/bonus/ftp/.
@@ -83,6 +106,7 @@ services:
       - nginx
   static:
     container_name: static
+    image: static
     init: true
     build:
       context: ./requirements/bonus/static-website/.
@@ -95,6 +119,7 @@ services:
   adminer:
     container_name: adminer
     init: true
+    image: adminer
     build:
       context: ./requirements/bonus/adminer
       dockerfile: Dockerfile
@@ -109,6 +134,7 @@ services:
       - wordpress
   cadvisor:
     container_name: cadvisor
+    image: cadvisor
     init: true
     build:
       context: ./requirements/bonus/cadvisor

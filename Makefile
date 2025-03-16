@@ -61,7 +61,7 @@ ps:
 exec:
 	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) sh
 
-re: prune all
+re: down up
 
 
 evaluation:
