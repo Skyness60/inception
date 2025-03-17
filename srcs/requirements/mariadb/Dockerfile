@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y mariadb-server \
 
 # Configurer les permissions
 RUN mkdir -p /var/run/mysqld /var/lib/mysql /etc/mysql \
-    && chown -R mysql:mysql /var/run/mysqld /var/lib/mysql \
-    && chmod -R 750 /var/run/mysqld /var/lib/mysql
+    && chown -R mysql:mysql /var/run/mysqld /var/lib/mysql /etc/mysql \
+    && chmod -R 770 /var/run/mysqld /var/lib/mysql /etc/mysql
 
 # Définir le répertoire de travail
 WORKDIR /workspace

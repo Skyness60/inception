@@ -36,6 +36,9 @@ all: up
 up: $(UP_FLAG)
 
 $(UP_FLAG):
+	mkdir -p /home/sperron/data/mariadb-data
+	mkdir -p /home/sperron/data/static-data
+	mkdir -p /home/sperron/data/wordpress-data
 	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d --build
 	$(TOUCH) $(UP_FLAG)
 

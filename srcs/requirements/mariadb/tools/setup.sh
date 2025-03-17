@@ -1,6 +1,9 @@
 #!/bin/bash
 
 set -e  # Stopper si une commande échoue
+mkdir -p /run/mysqld
+chmod 777 /run/mysqld 
+chown -R mysql:mysql /run/mysqld
 
 # Fichier d'init SQL
 cat <<EOF > /etc/mysql/init.sql
@@ -11,8 +14,5 @@ FLUSH PRIVILEGES;
 EOF
 
 # Assurer que le dossier est prêt
-mkdir -p /run/mysqld
-chown -R mysql:mysql /run/mysqld
-
 # Lancer MySQL
 exec mysqld
